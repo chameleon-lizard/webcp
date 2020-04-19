@@ -1,8 +1,8 @@
 #!/bin/bash
 
 FILE="$(date +'%s').html"
-SCP="$(head -n 1 ~/.config/webcpy/config)"
-WEB="$(tail -n 1 ~/.config/webcpy/config)"
+SCP="$(head -n 1 ~/.config/webcp/config)"
+WEB="$(tail -n 1 ~/.config/webcp/config)"
 
 if [ -p /dev/stdin ]; then
     # If piping
