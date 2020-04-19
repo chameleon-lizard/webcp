@@ -8,15 +8,32 @@ if [ -p /dev/stdin ]; then
     # If piping
     echo "<html><head><meta charset=utf-8><title>Raw paste data</title></head><body><pre class=prettyprint style='border: none;'>" > $FILE
     while IFS= read line; do
-        echo "${line}" | sed -r 's/&/\&amp;/g' | sed -r 's/</\&lt;/g' | sed -r 's/>/\&gt;/g' >> $FILE
+        echo "${line}" | sed -r 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g' >> $FILE
     done
     echo "</pre></body><script src=https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js></script></html>" >> $FILE
 else
     if [ -f "$1" ]; then
+        TYPE="$(file -b --mime-type $1 | awk -F/ '{print $1}')"
+        NAME="$(basename $1)"
         # If putting a file
-    echo "<html><head><meta charset=utf-8><title>$1</title></head><body><pre class=prettyprint style='border: none;'>" > $FILE
-        cat "$1" | sed -r 's/&/\&amp;/g' | sed -r 's/</\&lt;/g' | sed -r 's/>/\&gt;/g' >> $FILE
-        echo "</pre></body><script src=https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js></script></html>" >> $FILE
+        if [ $TYPE == "image" ]; then
+            # Creating an image page
+            echo "<html><head><meta charset=utf-8><title>$NAME</title></head><body style='background: #0d0d0d;'><img src='$NAME' style='margin: auto; height: auto; max-width: 100%;'></img></body></html>" > $FILE
+            scp $1 $SCP
+        elif [ $TYPE == "video" ]; then
+            # Creating a video page
+            echo "<html><head><meta charset=utf-8><title>$NAME</title></head><body style='background: #0d0d0d;'><video width='90%' height='auto' controls style='margin: auto;'><source src='$NAME' type='$(file -b --mime-type $1)'>Your browser does not support the video tag</video></body></html>" > $FILE
+            scp $1 $SCP
+        elif [ $TYPE == "text" ]; then 
+            # Creating a text page
+            echo "<html><head><meta charset=utf-8><title>$NAME</title></head><body><pre class=prettyprint style='border: none;'>" > $FILE
+            cat "$1" | sed -r 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g' >> $FILE
+            echo "</pre></body><script src=https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js></script></html>" >> $FILE
+        else
+            # Creating the download page
+            echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>$NAME</title></head><body style='background-color: #111111;'><div style='position: absolute; left: 0; top: 50%; width: 100%; text-align: center;'><a href='$NAME' style='background-color: grey; border-radius: 2px; color: white; padding: 15px; text-align: center; text-decoration: none; display: inline-block; cursor: pointer;' download>$NAME</a></div></body>" > $FILE
+            scp $1 $SCP
+        fi
     else
         echo "No input given!"
     fi
