@@ -26,7 +26,6 @@ else
     fi
 fi
 
-chmod 711 $FILE
 # Putting the file to the server
 scp $FILE $SCP
 
