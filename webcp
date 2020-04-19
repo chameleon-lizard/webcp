@@ -6,21 +6,17 @@ WEB="$(tail -n 1 ~/.config/webcpy/config)"
 
 if [ -p /dev/stdin ]; then
     # If piping
-    echo "<html><head><meta charset=" > $FILE
-    echo "utf-8" >> $FILE
-    echo "><title>Raw paste data</title></head><body><pre>" >> $FILE
+    echo "<html><head><meta charset=utf-8><title>Raw paste data</title></head><body><pre class=prettyprint>" > $FILE
     while IFS= read line; do
-        echo "${line}" | sed -r 's/&/\&amp;/g' | sed -r 's/</\&lt;/g' >> $FILE
+        echo "${line}" | sed -r 's/&/\&amp;/g' | sed -r 's/</\&lt;/g' | sed -r 's/>/\&gt;/g' >> $FILE
     done
-    echo "</pre></body></html>" >> $FILE
+    echo "</pre></body><script src=https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js></script></html>" >> $FILE
 else
     if [ -f "$1" ]; then
         # If putting a file
-        echo "<html><head><meta charset=" > $FILE
-        echo "utf-8" >> $FILE
-        echo "><title>$1</title></head><body><pre>" >> $FILE
-        cat "$1" | sed -r 's/&/\&amp;/g' | sed -r 's/</\&lt;/g' >> $FILE
-        echo "</pre></body></html>" >> $FILE
+    echo "<html><head><meta charset=utf-8><title>$1</title></head><body><pre class=prettyprint>" > $FILE
+        cat "$1" | sed -r 's/&/\&amp;/g' | sed -r 's/</\&lt;/g' | sed -r 's/>/\&gt;/g' >> $FILE
+        echo "</pre></body><script src=https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js></script></html>" >> $FILE
     else
         echo "No input given!"
     fi
