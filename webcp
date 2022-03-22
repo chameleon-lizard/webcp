@@ -3,6 +3,15 @@
 FILE="$(date +'%s').html"
 SCP="$(head -n 1 ~/.config/webcp/config)"
 WEB="$(tail -n 1 ~/.config/webcp/config)"
+CLIPTOOL='/usr/bin/true'
+CLIPARGS=''
+unamestr=$(uname)
+if [[ "$unamestr" == 'Linux' || "$unamestr" == "FreeBSD" ]]; then
+   CLIPTOOL='xclip'
+   CLIPARGS='-selection clipboard'
+elif [[ "$unamestr" == 'Darwin' ]]; then
+   platform='pbcopy'
+fi
 
 if [ -p /dev/stdin ]; then
     # If piping
@@ -24,7 +33,7 @@ else
             # Creating a video page
             echo "<html><head><meta charset=utf-8><title>$NAME</title></head><body style='background: #0d0d0d; width: 100%; height: 100%; margin: 0; padding: 0;'><video width='90%' height='auto' controls style='margin: auto; position: absolute; left: 0; right: 0; top: 0; bottom: 0;'><source src='$NAME' type='$(file -b --mime-type $1)'>Looks like your browser does not support the video tag</video></body></html>" > $FILE
             scp $1 $SCP
-        elif [ $TYPE == "text" ]; then 
+        elif [ $TYPE == "text" ]; then
             # Creating a text page
             echo "<html><head><meta charset=utf-8><title>$NAME</title></head><body><pre class=prettyprint style='border: none;'>" > $FILE
             cat "$1" | sed -r 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g' >> $FILE
@@ -46,4 +55,4 @@ scp $FILE $SCP
 rm $FILE
 
 # Copying the link
-echo "$WEB$FILE" | xclip -selection clipboard
+echo "$WEB$FILE" | $CLIPTOOL $CLIPARGS
