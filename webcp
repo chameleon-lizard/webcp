@@ -10,7 +10,7 @@ if [[ "$unamestr" == 'Linux' || "$unamestr" == "FreeBSD" ]]; then
    CLIPTOOL='xclip'
    CLIPARGS='-selection clipboard'
 elif [[ "$unamestr" == 'Darwin' ]]; then
-   platform='pbcopy'
+   CLIPTOOL='pbcopy'
 fi
 
 if [ -p /dev/stdin ]; then
